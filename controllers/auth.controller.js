@@ -2,6 +2,8 @@ const { response } = require('express');
 const Usuario = require('../models/usuario.model');
 const { generarJWT } = require('../helpers/jwt');
 
+const { googleVerify } = require('../helpers/google-verify');
+
 const bcrypt = require('bcryptjs');
 
 const login = async(req, res = response) => {
@@ -49,6 +51,53 @@ const login = async(req, res = response) => {
     }
 }
 
+const googleSignIn = async(req, res = response) => {
+    const googleToken = req.body.token;
+
+    try {
+        const { name, email, picture } = await googleVerify(googleToken);
+
+        const usuarioDb = await Usuario.findOne({ email });
+        let usuario;
+
+        if (!usuarioDb) {
+            //SI NO EXISTE USUARIO
+            usuario = new Usuario({
+                nombre: name,
+                email,
+                password: '@@@',
+                img: picture,
+                google: true
+            })
+        } else {
+            usuario = usuarioDb;
+            usuario.google = true;
+        }
+
+        // GUARDAR EN DB
+        await usuario.save();
+
+        // GENERAR EL TOKEN
+        const token = await generarJWT(usuario._id);
+
+        res.json({
+            ok: true,
+            token
+        });
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({
+            ok: false,
+            message: 'token incorrecto'
+        });
+    }
+
+
+}
+
 module.exports = {
-    login
+    login,
+    googleSignIn
 }
