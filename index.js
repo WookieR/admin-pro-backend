@@ -20,6 +20,10 @@ dbConnection();
 //RUTAS
 app.use('/api/usuario', require('./routes/usuarios'));
 app.use('/api/login', require('./routes/auth'));
+app.use('/api/hospital', require('./routes/hospitales'));
+app.use('/api/medico', require('./routes/medicos'));
+app.use('/api/todo', require('./routes/busquedas'));
+app.use('/api/upload', require('./routes/upload'));
 
 app.listen(process.env.PORT, () => {
     console.log('Servidor corriendo en el puerto: ' + process.env.PORT);
