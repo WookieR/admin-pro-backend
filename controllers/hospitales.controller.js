@@ -47,14 +47,72 @@ const crearHospital = async(req, res = response) => {
     }
 }
 
-const actualizarHospital = (req, res = response) => {
-    res.json({
-        ok: true,
-        message: 'PUT'
-    })
+const actualizarHospital = async(req, res = response) => {
+    const id = req.params.id;
+    const usuId = req.id;
+
+    try {
+
+        const hospitalDb = await Hospital.findById(id);
+
+        if (!hospitalDb) {
+            return res.status(404).json({
+                ok: false,
+                message: 'No se encontró el hospital especificado'
+            });
+        }
+
+        const cambiosHospital = {
+            ...req.body,
+            usuario: usuId
+        };
+
+        const hospitalActualizado = await Hospital.findByIdAndUpdate(id, cambiosHospital, { new: true });
+
+        res.json({
+            ok: true,
+            hospital: hospitalActualizado,
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Se hizo choto'
+        })
+    }
 }
 
-const eliminarHospital = (req, res = response) => {
+const eliminarHospital = async(req, res = response) => {
+    const id = req.params.id;
+
+    try {
+
+        const hospitalDb = await Hospital.findById(id);
+
+        if (!hospitalDb) {
+            return res.status(404).json({
+                ok: false,
+                message: 'No se encontró el hospital especificado'
+            });
+        }
+
+        await Hospital.findByIdAndDelete(id);
+
+        res.json({
+            ok: true,
+            message: 'Hospital eliminado'
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Se hizo choto'
+        })
+    }
+
+
     res.json({
         ok: true,
         message: 'DELETE'
