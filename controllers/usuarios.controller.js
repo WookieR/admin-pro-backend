@@ -97,7 +97,14 @@ const actualizarUsuarios = async(req, res = response) => {
 
         }
 
-        campos.email = email;
+        if (!usuarioDb.google) {
+            campos.email = email;
+        } else if (usuarioDb.email !== email) {
+            return res.status(400).json({
+                ok: false,
+                error: 'No se puede cambiar su mail'
+            });
+        }
 
         // VALIDACION DE TOKEN Y MISMO USUARIO
 

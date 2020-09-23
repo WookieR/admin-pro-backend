@@ -4,7 +4,8 @@ const {
     getMedico,
     crearMedico,
     actualizarMedico,
-    eliminarMedico
+    eliminarMedico,
+    getMedicoById
 } = require('../controllers/medicos.controller');
 
 const { check } = require('express-validator');
@@ -16,6 +17,10 @@ const router = Router();
 router.get('/', [
     validarJWT
 ], getMedico);
+
+router.get('/:id', [
+    validarJWT
+], getMedicoById);
 
 router.post('/', [
     validarJWT,
