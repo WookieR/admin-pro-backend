@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const Usuario = require('../models/usuario.model');
 
 const validarJWT = (req, res, next) => {
 
@@ -26,6 +27,73 @@ const validarJWT = (req, res, next) => {
 
 }
 
+const validarAdminRole = async(req, res, next) => {
+    const id = req.id;
+
+    try {
+        const usuarioDb = await Usuario.findById(id);
+
+        if (!usuarioDb) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Usuario inexistente'
+            })
+        }
+
+        if (usuarioDb.role !== 'ADMIN_ROLE') {
+            return res.status(403).json({
+                ok: false,
+                message: 'No tiene privilegios para eso'
+            })
+        }
+
+        next();
+
+    } catch (err) {
+        console.log(err);
+        return res.status(401).json({
+            ok: false,
+            message: 'Hable con el administrador'
+        });
+    }
+}
+
+const validarAdminRole_o_mismoUsuario = async(req, res, next) => {
+    const id = req.id;
+    const idModificar = req.params.id;
+
+
+
+    try {
+        const usuarioDb = await Usuario.findById(id);
+
+        if (!usuarioDb) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Usuario inexistente'
+            })
+        }
+
+        if (usuarioDb.role === 'ADMIN_ROLE' || id === idModificar) {
+            next();
+        } else {
+            return res.status(403).json({
+                ok: false,
+                message: 'No tiene privilegios para eso'
+            });
+        }
+
+    } catch (err) {
+        console.log(err);
+        return res.status(401).json({
+            ok: false,
+            message: 'Hable con el administrador'
+        });
+    }
+}
+
 module.exports = {
-    validarJWT
+    validarJWT,
+    validarAdminRole,
+    validarAdminRole_o_mismoUsuario
 }
